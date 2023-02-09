@@ -1,0 +1,7 @@
+*~
+task2/state.bin
+task2/state2.bin
+task2/task2.wasm.v1
+task2/dist/module.wasm.v1
+task2/target
+task2/dist/schema.bin

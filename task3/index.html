@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Task3</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdn.skypack.dev/mvp.css" type="text/css">
+	<script src="/sdk.js"></script>
+	<script src="/helpers.js"></script>
+	<script>
+		let client = null;
+		let currentAccountddress = null;
+		let rawModuleSchema = '//8DAQAAAAUAAAB0YXNrMgACAAAABwAAAHJlY2VpdmUDFQEAAAAQAAAAUGFyc2VQYXJhbXNFcnJvcgIEAAAAdmlldwEUAAEAAAAHAAAAY291bnRlcgQA';
+		const moduleReference = new concordiumSDK.ModuleReference('6a1ec1772522c0f456e2d81247b083e6cb599d4c5e3891ee569468553ae3fe17')
+		function connect() {
+			client.connect().then(accountAddress => {
+				currentAccountddress = accountAddress
+				document.getElementById("accountAddress").innerHTML = accountAddress
+			})
+		}
+		function initcontract() {
+
+
+			// send tx
+			client.sendTransaction(
+				currentAccountddress,
+				concordiumSDK.AccountTransactionType.InitContract,
+				{
+					amount: new concordiumSDK.CcdAmount(0n),
+					moduleRef: moduleReference,
+					initName: "task2",
+					maxContractExecutionEnergy: 3000n,
+				},
+				// input parameners
+				{
+					description: ""
+				},
+				rawModuleSchema,
+			)
+				.then(txHash => alert(`Successfully set up new poll with transaction hash: "${txHash}"`))
+				.catch(alert);
+		}
+
+		function increment() {
+			const contractIndex = document.getElementById('contractIndex').value;
+
+			client.sendTransaction(
+				currentAccountddress,
+				concordiumSDK.AccountTransactionType.Update,
+				{
+					amount: new concordiumSDK.CcdAmount(0n),
+					contractAddress: {
+						index: BigInt(contractIndex),
+						subindex: 0n,
+					},
+					receiveName: 'task2.receive',
+					maxContractExecutionEnergy: 3000n,
+				},
+				// input parameners
+				{
+					description: ""
+				},
+				rawModuleSchema,
+			)
+				.then(txHash => alert(`OK: "${txHash}"`))
+				.catch(alert);
+		}
+
+		function view() {
+			const contractIndex = document.getElementById('contractIndex').value;
+
+			client.getJsonRpcClient().invokeContract({
+				contract: { index: BigInt(contractIndex), subindex: BigInt(0) },
+				method: 'task2.view',
+			})
+				.then((viewResult) => {
+					let returnValue = concordiumSDK.deserializeReceiveReturnValue(
+						concordiumSDK.toBuffer(viewResult.returnValue, 'hex'),
+						concordiumSDK.toBuffer(rawModuleSchema, 'base64'),
+						"task2",
+						"view",
+						concordiumSDK.SchemaVersion.V2
+					);
+					document.getElementById('counterValue').innerText = returnValue.counter;
+				})
+				.catch(alert);
+		}
+
+		function setUp() {
+			concordiumHelpers.detectConcordiumProvider().then(c => client = c).catch(console.log)
+		}
+		addEventListener("DOMContentLoaded", (_) => setUp()).catch(i => console.log(i))
+	</script>
+</head>
+
+<body>
+	<article>
+		<section>
+			<!-- Connect the wallet.-->
+			<h2>Connected account:
+				<span id="accountAddress">None</span>
+			</h2>
+			<p>
+				<button onclick="connect()">Connect to browser wallet</button>
+				<button onclick="initcontract()">Init contract</button>
+			</p>
+		</section>
+		<section>
+			<label>Contract index:<br /><input type="number" min="0" id="contractIndex" /></label>
+
+			<button onclick="view()">Get counter value</button>
+			<h2>Value:
+				<span id="counterValue">None</span>
+			</h2>
+			<button onclick="increment()">Increment</button>
+		</section>
+	</article>
+</body>
+
+</html>

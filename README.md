@@ -48,14 +48,14 @@ Mainnet address: to be specified later (compliance check cannot recognise my ID.
 
 ## TASK 3
 
-This is the simplest DAP possible - jsut calls the contract from the Task2 from the browser.
+This is the simplest DAP possible - just calls the contract from the Task2 from the browser.
 
 [Screencast](https://youtu.be/KvF_oRn2uiM)
 
 Instructions:
-1 `cd task3` 
-2 `npm start`
-3 go to browser and click - see the screencast
+1. `cd task3` 
+2. `npm start`
+3. go to browser and click - see the screencast
 
 ### Transaction IDs
  * Deploy Transaction '15048898c099e85a3158748e3e16db7ce3119798cc60b67e457ffddb666ba93b'
